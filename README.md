@@ -9,3 +9,5 @@ Since Nerdfonts contains several icons for Linux distributions, NFetch makes use
 > Note: NFetch is (currently) only usable on Linux, since some of the techniques for getting system information is Linux **ONLY**.
 
 To use NFetch, you must download it (obviously).
+
+Easiest way? Just go [here](https://github.com/FormunaGit/NFetch/blob/main/nfetch.py) and hit the Download button.
