@@ -3,24 +3,7 @@ import getpass # Gets Username
 import platform
 import socket # Gets hostname
 import os, subprocess, re # For CPU finder
-# Try: Except: imports for non-preinstalled modules
-try: # Attempt to get Colorama
-    from colorama import Fore, Back
-except ImportError:
-    print("Uh oh! Colorama is needed for coloring purposes! This script will end with an error!")
-
-try: # Attempt to get [distro]
-    import distro
-except ImportError:
-    print(Color.Red("Uh oh! Distro is required to identify what Linux distribution you are using! This script will end with an error!"))
-
-try: # Attempt to get psutil
-    import psutil
-except ImportError:
-    print(Color.Red("Uh oh! PSUTIL is required to identify your hardware! This script will end with an error!")) 
-
-# Global Variables
-system = platform.uname()
+from colorama import Fore, Back
 
 # Classes, Icons
 class Icons: # OS Variables, Icons
@@ -65,6 +48,27 @@ class InfoGen:
         for line in all_info.split("\n"):
             if "model name" in line:
                 return re.sub(".*model name.*:", "", line,1)
+
+# Try: Except: imports for non-preinstalled modules
+try:
+    from colorama import Fore, Back
+except ImportError:
+    print("Uh oh! Colorama is required! This script will end with an error!")
+
+try: # Attempt to get [distro]
+    import distro
+except ImportError:
+    print(Color.Red("Uh oh! Distro is required to identify what Linux distribution you are using! This script will end with an error!"))
+
+try: # Attempt to get psutil
+    import psutil
+except ImportError:
+    print(Color.Red("Uh oh! PSUTIL is required to identify your hardware! This script will end with an error!")) 
+
+# Global Variables
+system = platform.uname()
+
+
 
 def OSIcon(): # Generate Icon from OS
     if distro.id() == "ubuntu":
