@@ -1,100 +1,99 @@
-# Imports
-import getpass # Gets Username
-import platform
-import socket # Gets hostname
-import os, subprocess, re # For CPU finder
-from colorama import Fore, Back
+import distro
+from colorama import Fore
+import re
+import subprocess
 
-# Classes, Icons
-class Icons: # OS Variables, Icons
-    User = ""
-    Monitor = "󰍹"
-    CPU = "󰻠"
-    class OS:
-        isLinux = False
-        useDistro = False
-        Arch = "󰣇"
-        Debian = ""
-        Ubuntu = ""
-        RedHat = "󱄛"
-        Mageia = ""
-        Raspbian = ""
-        Fedora = " "
-        Slackware = ""
-        Tux = ""
-        Unknown = ""
-class Color: # Colorama, but easier
-    def Red(text: str):
-        return Fore.RED + text + Fore.RESET
-    def Yellow(text: str):
-        return Fore.YELLOW + text + Fore.RESET
-    def Green(text: str):
-        return Fore.GREEN + text + Fore.RESET
-    def Cyan(text: str):
-        return Fore.CYAN + text + Fore.RESET
-class A: # ASCII mini-icons
-    trc = "┐" # Top Right Corner
-    tlc = "┌" # Top Left Corner
-    brc = "┘" # Bottom Right Corner
-    blc = "└" # Bottom Left Corner
-    lh = "─" # Line Horizontal
-    lv = "│" # Line Vertical
-    lvl = "├" # Line Vertical + Line
-    s = "◻" # Square
-class InfoGen:
-    def CPU():
-        command = "cat /proc/cpuinfo"
-        all_info = subprocess.check_output(command, shell=True).decode().strip()
-        for line in all_info.split("\n"):
-            if "model name" in line:
-                return re.sub(".*model name.*:", "", line,1)
-
-# Try: Except: imports for non-preinstalled modules
-try:
-    from colorama import Fore, Back
-except ImportError:
-    print("Uh oh! Colorama is required! This script will end with an error!")
-
-try: # Attempt to get [distro]
-    import distro
-except ImportError:
-    print(Color.Red("Uh oh! Distro is required to identify what Linux distribution you are using! This script will end with an error!"))
-
-try: # Attempt to get psutil
-    import psutil
-except ImportError:
-    print(Color.Red("Uh oh! PSUTIL is required to identify your hardware! This script will end with an error!")) 
-
-# Global Variables
-system = platform.uname()
-
-
-
-def OSIcon(): # Generate Icon from OS
-    if distro.id() == "ubuntu":
-        return Icons.OS.Ubuntu
-    elif distro.id() == "debian":
-        return Icons.OS.Debian
-    elif distro.id() == "arch":
-        return Icons.OS.Arch
-    elif distro.id() == "rhel":
-        return Icons.OS.RedHat
-    elif distro.id() == "raspbian":
-        return Icons.OS.Raspbian
-    elif distro.id() == "mageia":
-        return Icons.OS.Mageia
-    elif distro.id() == "fedora":
-        return Icons.OS.Fedora
-    elif distro.id() == "slackware":
-        return Icons.OS.Slackware
+def get_base_system():
+    with open('/etc/os-release', 'r') as f:
+        data = f.read()
+    match = re.search(r'ID_LIKE=(.*)', data)
+    if match:
+        return match.group(1).strip('"')
     else:
-        return Icons.OS.Tux
+        return 'Unknown'
 
-def generateFetch():
-    print(Color.Red("┌───────────────") + Color.Yellow("NFETCH") + Color.Red("───────────────")) # Top Bar
-    print(Color.Red(A.lvl) + f" {Icons.User} " + Color.Green(getpass.getuser()) + Color.Red("@") + Color.Yellow(socket.gethostname())) # Username and Hostname
-    print(f"{Color.Red(A.lvl)} {OSIcon()} {Color.Cyan(distro.name())} {distro.version()} ({Color.Green(distro.codename())})") # OS NAme & Version
-    print(f"{Color.Red(A.lvl)} {Icons.CPU}{Color.Yellow(InfoGen.CPU())}")
-    print(Color.Red("└────────────────────────────────────"))
+class NFI:
+    OS = {
+        'ubuntu': '',
+        'debian': '',
+        'rhel': '',
+        'centos': '',
+        'fedora': '',
+        'opensuse': '',
+        'sles': '',
+        'amazon': '',
+        'arch': '󰣇',
+        'buildroot': '󰥯',
+        'cloudlinux': '',
+        'exherbo': '󰆚',
+        'gentoo': '󰣨',
+        'linuxmint': '󰣭',
+        'mageia': '',
+        'pidora': '/',
+        'raspbian': '',
+        'slackware': '',
+        'openbsd': '',
+        'netbsd': '󰉀',
+        'freebsd': '',
+        'midnightbsd': '󰽥',
+        'rocky': '',
+        'guix': '',
+        'tux': '',
+        # Advanced Find
+        'endeavouros': '',
+    }
 
-generateFetch()
+def findIcon(dis=distro.id(), name=distro.name()):
+    if dis in NFI.OS:
+        return NFI.OS[dis]
+    else:
+        if name in NFI.OS:
+            return NFI.OS[name]
+        else:
+            return NFI.OS['tux']
+class C:
+    def r(self, s):
+        print(Fore.RED + s + Fore.RESET)
+    def g(self, s):
+        print(Fore.GREEN + s + Fore.RESET)
+    def y(self, s):
+        print(Fore.YELLOW + s + Fore.RESET)
+    def b(self, s):
+        print(Fore.BLUE + s + Fore.RESET)
+    def m(self, s):
+        print(Fore.MAGENTA + s + Fore.RESET)
+    def c(self, s):
+        print(Fore.CYAN + s + Fore.RESET)
+
+class DataObtainer:
+    def getPackageCount(self):
+        if get_base_system() == 'arch':
+            packageCount = subprocess.check_output('pacman -Q | wc -l', shell=True).decode('utf-8').strip()
+            return packageCount
+        else:
+            return 'N/A'
+    def getUser(self):
+        return subprocess.check_output('whoami', shell=True).decode('utf-8').strip()
+    def getHostname(self):
+        return subprocess.check_output('hostname', shell=True).decode('utf-8').strip()
+def cpuName():
+    cpuinfo = open('/proc/cpuinfo', 'r').read().splitlines()
+    for i in cpuinfo:
+        if i.split(':')[0] == 'model name	':
+            return i.split(':')[1].strip()
+    return 'N/A'
+def cpuCores():
+    return subprocess.check_output('nproc', shell=True).decode('utf-8').strip()
+def monitorSize():
+    return subprocess.check_output('xdpyinfo | grep dimensions | sed -r \'s/^[^0-9]*([0-9]+x[0-9]+).*$/\\1/\'', shell=True).decode('utf-8').strip()
+
+
+def promptConstructor():
+    print(f'  |{DataObtainer().getUser()}@{DataObtainer().getHostname()}')
+    print(f' {findIcon()} |{distro.name(pretty=True)}')
+    print(f'  |{cpuName()} ({cpuCores()} cores)')
+    print(f' 󰍹 |{monitorSize()}')
+    print(f'  |{DataObtainer().getHostname()}')
+    print(f' 󰏖 |{DataObtainer().getPackageCount()} ({get_base_system()})')
+
+promptConstructor()
